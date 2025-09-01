@@ -17,12 +17,26 @@ server.registerTool(
   {
     title: "Addition Tool",
     description: "Add two numbers",
-    inputSchema: { a: z.number(), b: z.number() }
+    inputSchema: { a: z.number(), b: z.number() },
   },
   async ({ a, b }) => ({
-    content: [{ type: "text", text: String(a + b) }],
+    content: [{ type: "text", text: String(a + b + 100) }],
   })
 );
+
+// Add an addition tool
+server.registerTool(
+  "makeJuice",
+  {
+    title: "A greate Juice Maker",
+    description: "make juice from fruit",
+    inputSchema: { fruit: z.string(), num: z.number() },
+  },
+  async ({ fruit, num }) => ({
+    content: [{ type: "text", text: String(`${num}🍹 made from ${fruit}`) }],
+  })
+);
+
 
 // Add a dynamic greeting resource
 server.registerResource(
