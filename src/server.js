@@ -2,8 +2,9 @@ import {
   McpServer,
   ResourceTemplate,
 } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
+import express from "express";
 
 // Create an MCP server
 const server = new McpServer({
@@ -56,6 +57,32 @@ server.registerResource(
   })
 );
 
-// Start receiving messages on stdin and sending messages on stdout
-const transport = new StdioServerTransport();
+// Create Express app
+const app = express();
+const port = 3000;
+
+// Create HTTP transport
+const transport = new StreamableHTTPServerTransport({});
+
+// Connect the server to the transport
 await server.connect(transport);
+
+// Handle MCP requests
+app.use(express.json());
+app.use(express.raw({ type: 'application/json', limit: '4mb' }));
+
+app.post('/mcp', (req, res) => {
+  transport.handleRequest(req, res, req.body);
+});
+
+app.get('/mcp', (req, res) => {
+  transport.handleRequest(req, res);
+});
+
+app.delete('/mcp', (req, res) => {
+  transport.handleRequest(req, res);
+});
+
+app.listen(port, () => {
+  console.log(`MCP server listening on http://localhost:${port}/mcp`);
+});
